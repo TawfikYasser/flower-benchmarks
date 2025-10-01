@@ -79,7 +79,7 @@ def train(net, trainloader, epochs, lr, partition_id, device):
         round_log["epoch"] = _ + 1
         round_log["lr"] = lr
         start = time.perf_counter()
-        round_log["epoch_start_time"] = start
+        # round_log["epoch_start_time"] = start
         for batch in trainloader:
             images = batch["image"].to(device)
             labels = batch["label"].to(device)
@@ -89,9 +89,9 @@ def train(net, trainloader, epochs, lr, partition_id, device):
             optimizer.step()
             running_loss += loss.item()
         end = time.perf_counter()
-        round_log["epoch_end_time"] = end
-        round_log["epoch_duration"] = end - start
-        round_log["epoch_loss"] = running_loss / len(trainloader)
+        # round_log["epoch_end_time"] = end
+        # round_log["epoch_duration"] = end - start
+        # round_log["epoch_loss"] = running_loss / len(trainloader)
     avg_trainloss = running_loss / (len(trainloader) * epochs)
     end = time.perf_counter()
     round_log["round_end_time"] = end

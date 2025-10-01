@@ -21,6 +21,8 @@ def custom_train_metrics_aggregation(record_dicts: list[RecordDict], weighted_by
         return MetricRecord({})
     
     current_round_logs = []
+    total_data_server_to_clients = 0
+    total_data_clients_to_server = 0
     
     for record_dict in record_dicts:
         if "metrics" in record_dict:            
@@ -28,14 +30,27 @@ def custom_train_metrics_aggregation(record_dicts: list[RecordDict], weighted_by
             for key, value in record_dict["metrics"].items():
                 if key != "train_loss":
                     round_log_data[key] = value
+                    
+                    # Aggregate transmission data
+                    if key == "data_received_from_server":
+                        total_data_server_to_clients += value
+                    elif key == "data_sent_to_server":
+                        total_data_clients_to_server += value
+            del round_log_data["data_received_from_server"]  # Remove detailed data to reduce log size
             current_round_logs.append(round_log_data)
     
-    # Add a new round entry (eval will later append round_acc)
-    ALL_ROUND_LOGS.append({"client_logs": current_round_logs})
+    # Calculate total round trip data
+    total_round_data = total_data_server_to_clients + total_data_clients_to_server
+    
+    # Add a new round entry with transmission summary
+    ALL_ROUND_LOGS.append({
+        "clients_logs": current_round_logs,
+        # "server_to_clients_mb": round(total_data_server_to_clients / (1024**2), 4),
+        # "clients_to_server_mb": round(total_data_clients_to_server / (1024**2), 4),
+        "total_amount_data_round_mb": round(total_round_data / (1024**2), 4)
+    })
     
     return MetricRecord({})
-
-
 def custom_eval_metrics_aggregation(record_dicts: list[RecordDict], weighted_by_key: str) -> MetricRecord:
     """Aggregate client evaluation accuracies into a global round accuracy and append to logs."""
     global ALL_ROUND_LOGS

@@ -81,9 +81,10 @@ def main(grid: Grid, context: Context) -> None:
 
     # Read run config
     fraction_train: float = context.run_config["fraction-train"]
+    fraction_evaluate: float = context.run_config["fraction_evaluate"]
     num_rounds: int = context.run_config["num-server-rounds"]
     lr: float = context.run_config["lr"]
-    experiment_name: str = "EXP1_CNN_fashion_mnist"
+    experiment_name: str = "EXP_CNN_fashion_mnist_dataset"
     run_id: str = input('Type the Run ID: ')
 
     # Load global model
@@ -91,7 +92,7 @@ def main(grid: Grid, context: Context) -> None:
     arrays = ArrayRecord(global_model.state_dict())
 
     # Initialize FedAvg strategy
-    strategy = FedAvg(fraction_train=fraction_train,
+    strategy = FedAvg(fraction_train=fraction_train, fraction_evaluate=fraction_evaluate,
                       train_metrics_aggr_fn=custom_train_metrics_aggregation,
                       evaluate_metrics_aggr_fn=custom_eval_metrics_aggregation)
 
@@ -113,3 +114,17 @@ def main(grid: Grid, context: Context) -> None:
     with open(f"{experiment_name}_{run_id}_logs.json", "w") as f:
         json.dump(ALL_ROUND_LOGS, f, indent=2)
     print("Logs saved to disk")
+
+    # Copy the analysis notebook to a new file with the run_id in its name
+    import shutil
+    shutil.copy("analysis.ipynb", f"run_{run_id}_benchmarks.ipynb")
+    print("Analysis notebook copied to disk")
+
+    # and inside the notebook I want to change the log file name to the new log file name
+    with open(f"run_{run_id}_benchmarks.ipynb", "r") as f:
+        notebook_content = f.read()
+    notebook_content = notebook_content.replace("EXP_CNN_fashion_mnist_dataset_1_logs.json", f"{experiment_name}_{run_id}_logs.json")
+    with open(f"run_{run_id}_benchmarks.ipynb", "w") as f:
+        f.write(notebook_content)
+    print("Analysis notebook updated with new log file name")
+    print("Run completed.")

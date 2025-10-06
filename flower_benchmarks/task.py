@@ -46,7 +46,7 @@ def load_data(partition_id: int, num_partitions: int):
     # Only initialize `FederatedDataset` once
     global fds
     if fds is None:
-        partitioner = DirichletPartitioner(num_partitions=num_partitions, partition_by="label", alpha=0.3)
+        partitioner = DirichletPartitioner(num_partitions=num_partitions, partition_by="label", alpha=0.7)
         fds = FederatedDataset(
             dataset="zalando-datasets/fashion_mnist",
             partitioners={"train": partitioner},

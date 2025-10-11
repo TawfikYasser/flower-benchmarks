@@ -16,8 +16,17 @@ license = "Apache-2.0"
 dependencies = [
     "flwr[simulation]>=1.22.0",
     "flwr-datasets[vision]>=0.5.0",
-    "torch==2.7.1",
-    "torchvision==0.22.1",
+    "numpy==1.23.5",
+    "torch==2.0.1",
+    "torchvision==0.15.1",
+    "yolov5 @ https://github.com/ultralytics/yolov5/archive/refs/tags/v6.2.tar.gz",
+    "pycocotools>=2.0.6",
+    "opencv-python>=4.7.0",
+    "matplotlib>=3.5.0",
+    "pandas>=1.5.0",
+    "albumentations>=1.3.0",
+    "tqdm>=4.64.0",
+    "seaborn>=0.12.0"
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -33,19 +42,28 @@ clientapp = "flower_benchmarks.client_app:app"
 
 # Custom config values accessible via `context.run_config`
 [tool.flwr.app.config]
-num-server-rounds = 5
+num-server-rounds = 1
 fraction-train = 1
 fraction_evaluate = 1
-local-epochs = 20
+local-epochs = 1
 lr = 0.01
+task = "detection"
+coco128_root = "/home/tawfik/SSDData/DeFeC3/coding/flower-benchmarks/datasets/coco128"  # Path to COCO128 dataset
+yolo_tmp_dir = "/home/tawfik/SSDData/DeFeC3/coding/flower-benchmarks/yolov5/tmp_coco_clients"  # Updated path
+yolo_runs_dir = "/home/tawfik/SSDData/DeFeC3/coding/flower-benchmarks/yolov5/runs/train"  # Updated path
+yolo_size = "n"  # n, s, m, l, or x
+img_size = 640
+batch_size = 16
+dirichlet_alpha = 0.7
+run_id = 1
 
 # Default federation to use when running the app
 [tool.flwr.federations]
 default = "local-simulation"
 
-# Local simulation federation with 10 virtual SuperNodes
+# Local simulation federation with 2 virtual SuperNodes
 [tool.flwr.federations.local-simulation]
-options.num-supernodes = 10
+options.num-supernodes = 2
 
 # Remote federation example for use with SuperLink
 [tool.flwr.federations.remote-federation]
